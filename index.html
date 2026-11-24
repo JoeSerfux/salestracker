@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Sales Tracker - USD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 24px 16px 90px;
+            display: block;
+            transition: background 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .stat-card,
+        body.dark-mode .main-card {
+            background: #0f3460;
+            color: #e4e4e4;
+        }
+
+        body.dark-mode .stat-label {
+            color: #a0a0a0;
+        }
+
+        body.dark-mode .sale-item {
+            background: #16213e;
+        }
+
+        body.dark-mode .sale-item:hover {
+            background: #1a1a2e;
+        }
+
+        body.dark-mode input[type="number"],
+        body.dark-mode input[type="date"] {
+            background: #16213e;
+            border-color: #1a1a2e;
+            color: #e4e4e4;
+        }
+
+        body.dark-mode input[type="number"]:focus,
+        body.dark-mode input[type="date"]:focus {
+            background: #1a1a2e;
+            border-color: #667eea;
+        }
+
+        body.dark-mode .btn-secondary {
+            background: #16213e;
+            color: #a0a0a0;
+        }
+
+        body.dark-mode .btn-secondary:hover {
+            background: #1a1a2e;
+        }
+
+        body.dark-mode .tab {
+            color: #a0a0a0;
+        }
+
+        body.dark-mode .tab:hover,
+        body.dark-mode .tab.active {
+            color: #667eea;
+        }
+
+        body.dark-mode .tabs {
+            border-bottom-color: #1a1a2e;
+        }
+
+        body.dark-mode .empty-state,
+        body.dark-mode .no-sales-day {
+            color: #6b7280;
+        }
+
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark-mode .dark-mode-toggle:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .dark-mode-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        /* Motivational Banner */
+        .motivational-banner {
+            background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .motivational-banner h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .motivational-banner p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        body.dark-mode .motivational-banner {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        }
+
+        /* Celebration Modal */
+        .celebration-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .celebration-modal.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .celebration-content {
+            background: white;
+            padding: 50px;
+            border-radius: 25px;
+            text-align: center;
+            max-width: 500px;
+            position: relative;
+            animation: bounceIn 0.6s ease;
+        }
+
+        body.dark-mode .celebration-content {
+            background: #0f3460;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .celebration-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: spin 1s ease;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg) scale(0); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .celebration-title {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .celebration-message {
+            font-size: 1.2rem;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        body.dark-mode .celebration-message {
+            color: #a0a0a0;
+        }
+
+        .close-celebration {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .close-celebration:hover {
+            transform: scale(1.05);
+        }
+
+        /* Quick Add Buttons */
+        .quick-add-section {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 15px;
+        }
+
+        body.dark-mode .quick-add-section {
+            background: #16213e;
+        }
+
+        .quick-add-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        body.dark-mode .quick-add-label {
+            color: #a0a0a0;
+        }
+
+        .quick-add-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .quick-add-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px 20px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .quick-add-btn {
+            background: #0f3460;
+            border-color: #1a1a2e;
+            color: #667eea;
+        }
+
+        .quick-add-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            color: #1f2937;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        input[type="number"] {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background: #f9fafb;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .sales-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .sales-list h3 {
+            color: #1f2937;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .sale-item {
+            background: #f9fafb;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .sale-item:hover {
+            background: #f3f4f6;
+            transform: translateX(5px);
+        }
+
+        .sale-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sale-amount {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #059669;
+        }
+
+        .sale-date {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .delete-btn {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #fecaca;
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #9ca3af;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* Scrollbar styling */
+        .sales-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sales-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .sales-list::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .sales-list::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .date-picker-section {
+            margin-bottom: 25px;
+        }
+
+        .date-input-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="date"] {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background: #f9fafb;
+            color: #1f2937;
+        }
+
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+
+        .day-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .day-summary h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .day-summary .amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .day-summary .sales-count {
+            font-size: 0.95rem;
+            opacity: 0.85;
+        }
+
+        .no-sales-day {
+            text-align: center;
+            padding: 40px;
+            color: #9ca3af;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .main-card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+        <svg id="darkModeIcon" viewBox="0 0 24 24">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+
+    <div class="celebration-modal" id="celebrationModal">
+        <div class="celebration-content">
+            <div class="celebration-icon" id="celebrationIcon">🎉</div>
+            <div class="celebration-title" id="celebrationTitle">Awesome!</div>
+            <div class="celebration-message" id="celebrationMessage">You're crushing it!</div>
+            <button class="close-celebration" onclick="closeCelebration()">Keep Going!</button>
+        </div>
+    </div>
+
+
+    <div id="authScreen" style="position:fixed;inset:0;z-index:3000;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;padding:20px;">
+      <div style="background:white;border-radius:20px;padding:30px;width:100%;max-width:420px;box-shadow:0 15px 45px rgba(0,0,0,.25);">
+        <h2 style="margin-bottom:8px;color:#1f2937;">Sales Tracker Login</h2>
+        <p style="color:#6b7280;margin-bottom:20px;">Sign in to sync your sales between your phone and PC.</p>
+        <input id="authEmail" type="email" placeholder="Email address" autocomplete="email" style="width:100%;padding:14px;border:1px solid #d1d5db;border-radius:10px;margin-bottom:10px;font-size:16px;">
+        <input id="authPassword" type="password" placeholder="Password (at least 6 characters)" autocomplete="current-password" style="width:100%;padding:14px;border:1px solid #d1d5db;border-radius:10px;margin-bottom:14px;font-size:16px;">
+        <button onclick="signIn()" style="width:100%;padding:14px;border:0;border-radius:10px;background:#667eea;color:white;font-weight:700;font-size:16px;margin-bottom:9px;">Log In</button>
+        <button onclick="signUp()" style="width:100%;padding:14px;border:0;border-radius:10px;background:#eef2ff;color:#4f46e5;font-weight:700;font-size:16px;">Create Account</button>
+        <p id="authMessage" style="color:#dc2626;margin-top:14px;font-size:14px;line-height:1.5;"></p>
+        <p style="color:#9ca3af;font-size:12px;margin-top:10px;">Your account is private. Use the same login on every device.</p>
+      </div>
+    </div>
+    <div id="cloudBar" style="display:none;position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:1500;width:calc(100% - 32px);max-width:1000px;margin:0;padding:12px 16px;background:rgba(20,20,35,0.9);backdrop-filter:blur(12px);border-radius:12px;text-align:center;color:white;font-size:14px;box-shadow:0 5px 20px rgba(0,0,0,0.2);">
+      <span id="cloudStatus">Cloud sync connected</span>
+      <button onclick="signOut()" style="margin-left:10px;padding:7px 12px;border:0;border-radius:8px;cursor:pointer;">Log out</button>
+    </div>
+
+    <div class="container" id="appContainer" style="display:none;">
+        <div class="header">
+            <h1>💼 Discord Sales Tracker (USD)</h1>
+            <p>Track your server sales earnings with style</p>
+        </div>
+
+        <div class="motivational-banner">
+            <h2>🚫 Don't Gamble Your Earnings Away</h2>
+            <p>You're working hard for this money. Gambling will only take it from you. Build your future, don't throw it away. Start saving now — it's never too late! 💪</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Today's Net Earnings</div>
+                <div class="stat-value" id="todayEarnings">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">This Week (Net)</div>
+                <div class="stat-value" id="weekEarnings">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">This Month (Net)</div>
+                <div class="stat-value" id="monthEarnings">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Fees Lost</div>
+                <div class="stat-value" id="totalFees" style="color: #dc2626;">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Sales</div>
+                <div class="stat-value" id="totalSales">0</div>
+            </div>
+        </div>
+
+        <div class="main-card">
+            <div class="quick-add-section">
+                <div class="quick-add-label">Quick Add</div>
+                <div class="quick-add-buttons">
+                    <button class="quick-add-btn" onclick="quickAddSale(5)">$5</button>
+                    <button class="quick-add-btn" onclick="quickAddSale(10)">$10</button>
+                    <button class="quick-add-btn" onclick="quickAddSale(15)">$15</button>
+                    <button class="quick-add-btn" onclick="quickAddSale(25)">$25</button>
+                    <button class="quick-add-btn" onclick="quickAddSale(50)">$50</button>
+                    <button class="quick-add-btn" onclick="quickAddSale(75)">$75</button>
+                    <button class="quick-add-btn" onclick="quickAddSale(100)">$100</button>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <div class="input-group">
+                    <input type="number" id="saleAmount" placeholder="Enter sale amount ($)" min="0" step="0.01">
+                    <input type="number" id="feeAmount" placeholder="Fees (optional)" min="0" step="0.01">
+                    <button class="btn btn-primary" onclick="addSale()">Add Sale</button>
+                    <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('recent')">Recent Sales</button>
+                <button class="tab" onclick="switchTab('daily')">View by Day</button>
+            </div>
+
+            <div class="tab-content active" id="recentTab">
+                <div class="sales-list" id="salesList">
+                    <div class="empty-state" id="emptyState">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p>No sales yet. Add your first sale above!</p>
+                    </div>
+                    <div id="salesContainer"></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="dailyTab">
+                <div class="date-picker-section">
+                    <div class="date-input-group">
+                        <input type="date" id="selectedDate" onchange="viewDayEarnings()">
+                    </div>
+                </div>
+                <div id="dayResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Daily storage: sales are automatically cleared when a new calendar day starts.
+        const todayKey = () => {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        };
+
+        
+
+
+/*
+SUPABASE ONE-TIME DATABASE SETUP
+1) Create a Supabase project.
+2) Open SQL Editor and run:
+
+create table if not exists public.tracker_data (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  data jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.tracker_data enable row level security;
+
+create policy "Users can read their own tracker data"
+on public.tracker_data for select
+to authenticated
+using (auth.uid() = user_id);
+
+create policy "Users can insert their own tracker data"
+on public.tracker_data for insert
+to authenticated
+with check (auth.uid() = user_id);
+
+create policy "Users can update their own tracker data"
+on public.tracker_data for update
+to authenticated
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+3) In Project Settings > API, copy the Project URL and anon/public key
+   into SUPABASE_URL and SUPABASE_ANON_KEY above.
+4) Publish this updated HTML file to Netlify and open the same site on both devices.
+
+IMPORTANT: Never put a service_role/secret key in this HTML file.
+*/
+
+        // Supabase setup: add your Project URL and anon/public key here.
+        // These are safe to use in a browser ONLY when Row Level Security is enabled
+        // and the SQL policy below has been applied.
+        const SUPABASE_URL = 'https://jctfdglwwhwxfhsmyfwa.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_GHkMwr6CV-NXiJnv8JduwQ_Bi0xdm8E';
+        const supabaseReady = SUPABASE_URL.startsWith('https://') &&
+                              !SUPABASE_URL.includes('PASTE_') &&
+                              !SUPABASE_ANON_KEY.includes('PASTE_');
+        const supabaseClient = supabaseReady
+            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+            : null;
+
+        let sales = JSON.parse(localStorage.getItem('discordSalesUSD')) || [];
+        let milestonesReached = JSON.parse(localStorage.getItem('milestonesReachedUSD')) || [];
+        let currentUser = null;
+        let salesDay = localStorage.getItem('discordSalesUSD_day') || todayKey();
+        let realtimeChannel = null;
+        let applyingCloudData = false;
+        let cloudSaveTimer = null;
+
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        function setAuthMessage(message, isError = true) {
+            const el = document.getElementById('authMessage');
+            if (el) {
+                el.style.color = isError ? '#dc2626' : '#059669';
+                el.textContent = message;
+            }
+        }
+
+        function setCloudStatus(message) {
+            const el = document.getElementById('cloudStatus');
+            if (el) el.textContent = message;
+        }
+
+        async function signUp() {
+            if (!supabaseClient) {
+                setAuthMessage('First add your Supabase Project URL and anon key to this HTML file.');
+                return;
+            }
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            if (!email || password.length < 6) {
+                setAuthMessage('Enter a valid email and a password with at least 6 characters.');
+                return;
+            }
+            const { data, error } = await supabaseClient.auth.signUp({ email, password });
+            if (error) return setAuthMessage(error.message);
+            if (data.session) {
+                setAuthMessage('Account created. Signing you in...', false);
+                await activateSession(data.session);
+            } else {
+                setAuthMessage('Account created. Check your email to confirm it, then log in.', false);
+            }
+        }
+
+        async function signIn() {
+            if (!supabaseClient) {
+                setAuthMessage('First add your Supabase Project URL and anon key to this HTML file.');
+                return;
+            }
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) return setAuthMessage(error.message);
+            await activateSession(data.session);
+        }
+
+        async function signOut() {
+            if (supabaseClient) await supabaseClient.auth.signOut();
+            currentUser = null;
+            if (realtimeChannel) await supabaseClient.removeChannel(realtimeChannel);
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('cloudBar').style.display = 'none';
+            document.getElementById('authScreen').style.display = 'flex';
+        }
+
+        async function activateSession(session) {
+            if (!session || !supabaseClient) return;
+            currentUser = session.user;
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            document.getElementById('cloudBar').style.display = 'block';
+            setCloudStatus('Loading your cloud data...');
+
+            const { data, error } = await supabaseClient
+                .from('tracker_data')
+                .select('data')
+                .eq('user_id', currentUser.id)
+                .maybeSingle();
+
+            if (error) {
+                setCloudStatus('Cloud error');
+                alert('Could not load cloud data: ' + error.message);
+                return;
+            }
+
+            if (data && data.data) {
+                applyingCloudData = true;
+                sales = Array.isArray(data.data.sales) ? data.data.sales : [];
+                milestonesReached = Array.isArray(data.data.milestonesReached) ? data.data.milestonesReached : [];
+                salesDay = data.data.salesDay || localStorage.getItem('discordSalesUSD_day') || todayKey();
+                localStorage.setItem('discordSalesUSD', JSON.stringify(sales));
+                localStorage.setItem('milestonesReachedUSD', JSON.stringify(milestonesReached));
+                if (typeof data.data.darkMode === 'boolean') {
+                    localStorage.setItem('darkMode', String(data.data.darkMode));
+                    document.body.classList.toggle('dark-mode', data.data.darkMode);
+                }
+                applyingCloudData = false;
+            } else {
+                // First login: upload any sales already saved in this browser.
+                salesDay = localStorage.getItem('discordSalesUSD_day') || todayKey();
+            }
+
+            // Preserve the tracker's existing daily reset behavior, including after being closed overnight.
+            if (salesDay !== todayKey()) {
+                sales = [];
+                milestonesReached = [];
+                salesDay = todayKey();
+                localStorage.setItem('discordSalesUSD', JSON.stringify(sales));
+                localStorage.setItem('milestonesReachedUSD', JSON.stringify(milestonesReached));
+                localStorage.setItem('discordSalesUSD_day', salesDay);
+                await saveCloudData();
+            } else {
+                localStorage.setItem('discordSalesUSD_day', salesDay);
+                if (!data) await saveCloudData();
+            }
+
+            renderSales();
+            updateStats();
+            setCloudStatus('Synced to cloud');
+
+            if (realtimeChannel) await supabaseClient.removeChannel(realtimeChannel);
+            realtimeChannel = supabaseClient
+                .channel('tracker-data-' + currentUser.id)
+                .on('postgres_changes', {
+                    event: '*', schema: 'public', table: 'tracker_data',
+                    filter: 'user_id=eq.' + currentUser.id
+                }, payload => {
+                    if (applyingCloudData || !payload.new || !payload.new.data) return;
+                    applyingCloudData = true;
+                    const cloud = payload.new.data;
+                    sales = Array.isArray(cloud.sales) ? cloud.sales : [];
+                    milestonesReached = Array.isArray(cloud.milestonesReached) ? cloud.milestonesReached : [];
+                    salesDay = cloud.salesDay || todayKey();
+                    localStorage.setItem('discordSalesUSD_day', salesDay);
+                    localStorage.setItem('discordSalesUSD', JSON.stringify(sales));
+                    localStorage.setItem('milestonesReachedUSD', JSON.stringify(milestonesReached));
+                    if (typeof cloud.darkMode === 'boolean') {
+                        localStorage.setItem('darkMode', String(cloud.darkMode));
+                        document.body.classList.toggle('dark-mode', cloud.darkMode);
+                    }
+                    applyingCloudData = false;
+                    renderSales();
+                    updateStats();
+                    setCloudStatus('Synced to cloud');
+                })
+                .subscribe();
+        }
+
+        async function saveCloudData() {
+            if (!currentUser || !supabaseClient || applyingCloudData) return;
+            const payload = {
+                user_id: currentUser.id,
+                data: {
+                    sales,
+                    milestonesReached,
+                    darkMode: document.body.classList.contains('dark-mode'),
+                    salesDay
+                },
+                updated_at: new Date().toISOString()
+            };
+            setCloudStatus('Syncing...');
+            const { error } = await supabaseClient
+                .from('tracker_data')
+                .upsert(payload, { onConflict: 'user_id' });
+            if (error) {
+                setCloudStatus('Sync failed');
+                console.error('Cloud save failed:', error);
+            } else {
+                setCloudStatus('Synced to cloud');
+            }
+        }
+
+        function queueCloudSave() {
+            if (!currentUser || applyingCloudData) return;
+            clearTimeout(cloudSaveTimer);
+            cloudSaveTimer = setTimeout(saveCloudData, 350);
+        }
+
+        function saveSales() {
+            localStorage.setItem('discordSalesUSD', JSON.stringify(sales));
+            salesDay = todayKey();
+            localStorage.setItem('discordSalesUSD_day', salesDay);
+            queueCloudSave();
+        }
+
+        // Restore an existing login automatically on this device.
+        async function initializeCloudApp() {
+            if (!supabaseClient) {
+                setAuthMessage('Setup needed: create a Supabase project, run the SQL instructions, then add your URL and anon key in this file.');
+                return;
+            }
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) await activateSession(session);
+            supabaseClient.auth.onAuthStateChange((_event, session) => {
+                if (session && !currentUser) setTimeout(() => activateSession(session), 0);
+            });
+        }
+
+        // If the app stays open across midnight, clear yesterday's data automatically.
+        setInterval(() => {
+            const day = todayKey();
+            if (localStorage.getItem('discordSalesUSD_day') !== day) {
+                sales = [];
+                milestonesReached = [];
+                localStorage.removeItem('discordSalesUSD');
+                localStorage.removeItem('milestonesReachedUSD');
+                salesDay = day;
+                localStorage.setItem('discordSalesUSD_day', day);
+                renderSales();
+                updateStats();
+                queueCloudSave();
+            }
+        }, 30000);
+
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+            queueCloudSave();
+        }
+
+        function playSound(frequency, duration) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        function playCelebrationSound() {
+            // Play a nice ascending melody
+            playSound(523, 0.15); // C
+            setTimeout(() => playSound(659, 0.15), 150); // E
+            setTimeout(() => playSound(784, 0.15), 300); // G
+            setTimeout(() => playSound(1047, 0.3), 450); // High C
+        }
+
+        function checkMilestone(todayTotal) {
+            const milestones = [
+                { amount: 20, icon: '🎯', title: '$20 Today!', message: 'Nice work! You hit $20 today!' },
+                { amount: 50, icon: '🔥', title: '$50 Today!', message: 'You\'re on fire! $50 in a single day!' },
+                { amount: 100, icon: '💎', title: '$100 Today!', message: 'LEGENDARY! You made $100 today!' }
+            ];
+
+            const today = new Date().toDateString();
+            
+            for (let milestone of milestones) {
+                if (todayTotal >= milestone.amount) {
+                    const milestoneKey = `${today}-${milestone.amount}`;
+                    if (!milestonesReached.includes(milestoneKey)) {
+                        milestonesReached.push(milestoneKey);
+                        localStorage.setItem('milestonesReachedUSD', JSON.stringify(milestonesReached));
+                        showCelebration(milestone.icon, milestone.title, milestone.message);
+                        break; // Only show one celebration at a time
+                    }
+                }
+            }
+        }
+
+        function showCelebration(icon, title, message) {
+            document.getElementById('celebrationIcon').textContent = icon;
+            document.getElementById('celebrationTitle').textContent = title;
+            document.getElementById('celebrationMessage').textContent = message;
+            document.getElementById('celebrationModal').classList.add('show');
+            playCelebrationSound();
+        }
+
+        function closeCelebration() {
+            document.getElementById('celebrationModal').classList.remove('show');
+        }
+
+        function quickAddSale(amount) {
+            const sale = {
+                id: Date.now(),
+                amount: amount,
+                date: new Date().toISOString()
+            };
+
+            sales.unshift(sale);
+            saveSales();
+            renderSales();
+            updateStats();
+        }
+
+        function addSale() {
+            const amountInput = document.getElementById('saleAmount');
+            const feeInput = document.getElementById('feeAmount');
+            const amount = parseFloat(amountInput.value);
+            const fee = parseFloat(feeInput.value) || 0;
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid sale amount!');
+                return;
+            }
+
+            const sale = {
+                id: Date.now(),
+                amount: amount,
+                fee: fee,
+                date: new Date().toISOString()
+            };
+
+            sales.unshift(sale);
+            saveSales();
+            amountInput.value = '';
+            feeInput.value = '';
+            renderSales();
+            updateStats();
+        }
+
+        function deleteSale(id) {
+            sales = sales.filter(sale => sale.id !== id);
+            saveSales();
+            renderSales();
+            updateStats();
+        }
+
+        function clearAll() {
+            if (confirm('Are you sure you want to clear all sales data?')) {
+                sales = [];
+                saveSales();
+                renderSales();
+                updateStats();
+            }
+        }
+
+        function renderSales() {
+            const container = document.getElementById('salesContainer');
+            const emptyState = document.getElementById('emptyState');
+
+            if (sales.length === 0) {
+                emptyState.style.display = 'block';
+                container.innerHTML = '';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            container.innerHTML = sales.map(sale => {
+                const date = new Date(sale.date);
+                const formattedDate = date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const fee = sale.fee || 0;
+                const netAmount = sale.amount - fee;
+                const feeDisplay = fee > 0 ? ` <span style="color: #dc2626; font-size: 0.9rem;">(-$${fee.toFixed(2)} fee)</span>` : '';
+                const netDisplay = fee > 0 ? `<div style="font-size: 0.95rem; color: #059669; margin-top: 3px;">Net: $${netAmount.toFixed(2)}</div>` : '';
+
+                return `
+                    <div class="sale-item">
+                        <div class="sale-info">
+                            <div class="sale-amount">$${sale.amount.toFixed(2)}${feeDisplay}</div>
+                            ${netDisplay}
+                            <div class="sale-date">${formattedDate}</div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteSale(${sale.id})">Delete</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStats() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const todaysSales = sales.filter(sale => {
+                const saleDate = new Date(sale.date);
+                saleDate.setHours(0, 0, 0, 0);
+                return saleDate.getTime() === today.getTime();
+            });
+
+            // Calculate week start (Sunday)
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            weekStart.setHours(0, 0, 0, 0);
+
+            const weekSales = sales.filter(sale => {
+                const saleDate = new Date(sale.date);
+                saleDate.setHours(0, 0, 0, 0);
+                return saleDate.getTime() >= weekStart.getTime();
+            });
+
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+
+            const monthSales = sales.filter(sale => {
+                const saleDate = new Date(sale.date);
+                return saleDate.getMonth() === currentMonth && 
+                       saleDate.getFullYear() === currentYear;
+            });
+
+            const todayTotal = todaysSales.reduce((sum, sale) => sum + sale.amount - (sale.fee || 0), 0);
+            const weekTotal = weekSales.reduce((sum, sale) => sum + sale.amount - (sale.fee || 0), 0);
+            const monthTotal = monthSales.reduce((sum, sale) => sum + sale.amount - (sale.fee || 0), 0);
+            const totalFees = sales.reduce((sum, sale) => sum + (sale.fee || 0), 0);
+
+            document.getElementById('todayEarnings').textContent = `$${todayTotal.toFixed(2)}`;
+            document.getElementById('weekEarnings').textContent = `$${weekTotal.toFixed(2)}`;
+            document.getElementById('monthEarnings').textContent = `$${monthTotal.toFixed(2)}`;
+            document.getElementById('totalSales').textContent = sales.length;
+            document.getElementById('totalFees').textContent = `$${totalFees.toFixed(2)}`;
+
+            // Check for milestone celebrations (using net amount)
+            checkMilestone(todayTotal);
+        }
+
+        // Allow Enter key to add sale
+        document.getElementById('saleAmount').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addSale();
+            }
+        });
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            if (tabName === 'recent') {
+                document.getElementById('recentTab').classList.add('active');
+            } else if (tabName === 'daily') {
+                document.getElementById('dailyTab').classList.add('active');
+                // Set default date to today
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('selectedDate').value = today;
+                viewDayEarnings();
+            }
+        }
+
+        function viewDayEarnings() {
+            const selectedDate = document.getElementById('selectedDate').value;
+            if (!selectedDate) return;
+
+            const selected = new Date(selectedDate + 'T00:00:00');
+            const resultsDiv = document.getElementById('dayResults');
+
+            // Filter sales for selected date
+            const daySales = sales.filter(sale => {
+                const saleDate = new Date(sale.date);
+                return saleDate.getFullYear() === selected.getFullYear() &&
+                       saleDate.getMonth() === selected.getMonth() &&
+                       saleDate.getDate() === selected.getDate();
+            });
+
+            const dayTotal = daySales.reduce((sum, sale) => sum + sale.amount, 0);
+            const dayFees = daySales.reduce((sum, sale) => sum + (sale.fee || 0), 0);
+            const dayNet = dayTotal - dayFees;
+
+            const formattedDate = selected.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            if (daySales.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="day-summary">
+                        <h3>${formattedDate}</h3>
+                        <div class="amount">$0.00</div>
+                        <div class="sales-count">No sales on this day</div>
+                    </div>
+                    <div class="no-sales-day">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 60px; height: 60px; margin: 0 auto 15px; opacity: 0.3;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p>No sales recorded for this day</p>
+                    </div>
+                `;
+            } else {
+                const salesHtml = daySales.map(sale => {
+                    const time = new Date(sale.date).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    const fee = sale.fee || 0;
+                    const netAmount = sale.amount - fee;
+                    const feeDisplay = fee > 0 ? ` <span style="color: #dc2626; font-size: 0.9rem;">(-$${fee.toFixed(2)} fee)</span>` : '';
+                    const netDisplay = fee > 0 ? `<div style="font-size: 0.95rem; color: #059669; margin-top: 3px;">Net: $${netAmount.toFixed(2)}</div>` : '';
+
+                    return `
+                        <div class="sale-item">
+                            <div class="sale-info">
+                                <div class="sale-amount">$${sale.amount.toFixed(2)}${feeDisplay}</div>
+                                ${netDisplay}
+                                <div class="sale-date">${time}</div>
+                            </div>
+                            <button class="delete-btn" onclick="deleteSale(${sale.id})">Delete</button>
+                        </div>
+                    `;
+                }).join('');
+
+                const feeInfo = dayFees > 0 ? `<div class="sales-count" style="color: rgba(255,255,255,0.8); margin-top: 5px;">Gross: $${dayTotal.toFixed(2)} | Fees: $${dayFees.toFixed(2)}</div>` : '';
+
+                resultsDiv.innerHTML = `
+                    <div class="day-summary">
+                        <h3>${formattedDate}</h3>
+                        <div class="amount">$${dayNet.toFixed(2)}</div>
+                        <div class="sales-count">${daySales.length} sale${daySales.length !== 1 ? 's' : ''} (Net Earnings)</div>
+                        ${feeInfo}
+                    </div>
+                    <div class="sales-list">
+                        ${salesHtml}
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize after authentication; cloud data is shared across devices.
+        initializeCloudApp();
+    </script>
+</body>
+</html>
